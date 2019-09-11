@@ -1,9 +1,10 @@
-  <div class="node" *ngIf="xCoord >= 0 && yCoord >= 0" [ngClass]="{'explored': isExplored,'start':isStart,'target':isTarget,'visited':isVisited}">
- 
-    <ng-container *ngIf="isTarget; else elseTTemplate">
-      E
-    </ng-container>
-    <ng-template #elseTTemplate>
+<div class="node" *ngIf="xCoord >= 0 && yCoord >= 0"
+  [ngClass]="{'explored': isExplored,'start':isStart,'target':isTarget,'visited':isVisited}">
+
+  <ng-container *ngIf="isTarget; else elseTTemplate">
+    E
+  </ng-container>
+  <ng-template #elseTTemplate>
     <ng-container *ngIf="isStart; else elseTemplates">
       S
     </ng-container>
@@ -16,9 +17,9 @@
       <ng-template #elseTemplateN>
       </ng-template>
     </ng-template>
-    </ng-template>
+  </ng-template>
 
 
-  
-  
-  </div>
+
+
+</div>

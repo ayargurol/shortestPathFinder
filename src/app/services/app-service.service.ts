@@ -10,7 +10,7 @@ import { Exploration } from '../models/exploration-type';
 export class AppServiceService {
   private subjects: Subject<any>[] = [];
   targetNode: NodeType;
-  exploredNodes: Exploration[];
+  exploredNodes: Exploration[] = [];
 
 
   constructor() { }
@@ -41,6 +41,7 @@ export class AppServiceService {
   }
 
   setExploration(node: NodeType, fromNode: NodeType) {
+    debugger;
     let exist = this.exploredNodes.find(a => a.node.xCord == node.xCord && a.node.yCord == node.yCord)
     if (exist != undefined) {
       exist.node = node;
@@ -48,5 +49,9 @@ export class AppServiceService {
     } else {
       this.exploredNodes.push({ node, from: fromNode })
     }
+  }
+
+  getExploredNodes(): Exploration[] {
+    return this.exploredNodes;
   }
 }

@@ -21,7 +21,7 @@ export class NodeComponent implements OnInit, OnDestroy {
   @Input() xCoord: number;
   @Input() yCoord: number;
 
-  gCost: number;
+  gCost: number = 0;
   hCost: number;
   fCost: number;
 
@@ -34,65 +34,89 @@ export class NodeComponent implements OnInit, OnDestroy {
 
   constructor(private appService: AppServiceService, private pathService: PathService) {
     this.pathValues = appService.getPathValues();
+    if (this.pathValues == null) {
+      this.pathValues = { diagonal: 14, straight: 10 };
+    }
   }
 
   ngOnInit() {
     this.nodeName = `${this.xCoord}-${this.yCoord}`;
 
-    this.appService.on(this.nodeName + '-explore').subscribe(() => {
-      debugger;
-      this.isExplored = true;
-    })
 
     this.appService.on(this.nodeName + '-visit').subscribe(() => {
-      debugger;
       this.isVisited = true;
     })
 
     this.appService.on(this.nodeName + '-start').subscribe(() => {
-      debugger;
       this.isStart = true;
     })
 
     this.appService.on(this.nodeName + '-target').subscribe(() => {
-      debugger;
       this.isTarget = true;
+      this.appService.publish('targetNode', this.getNodeType());
     })
 
     this.appService.on(this.nodeName + '-rock').subscribe(() => {
-      debugger;
       this.isRock = true;
       this.appService.publish('rocks', { xCord: this.xCoord, yCord: this.yCoord });
     })
 
     this.appService.on("targetNode").subscribe((targetNode: NodeType) => {
-      debugger;
       this.targetNode = targetNode;
+      let cost = 0;
+      let xFar = this.targetNode.xCord - this.xCoord;
+      let yFar = this.targetNode.yCord - this.yCoord;
+      xFar = xFar < 0 ? -xFar : xFar;
+      yFar = yFar < 0 ? -yFar : yFar;
+
+      while (xFar > 0) {
+        while (yFar > 0) {
+          if (xFar - 1 >= 0 && yFar - 1 >= 0) {
+            // can go diagonal
+            cost += this.pathValues.diagonal;
+            xFar--;
+            yFar--;
+          } else {
+            if (yFar - 1 >= 0) {
+              // can go straight on Y plane
+              cost += this.pathValues.straight;
+              yFar--;
+            }
+          }
+        }
+        if (xFar - 1 >= 0) {
+          // can go straight on X plane
+          cost += this.pathValues.straight;
+          xFar--;
+        }
+      }
+      this.hCost = cost;
     })
 
+    //TODO: if prev G is lower keep it
     this.appService.on(this.nodeName + '-explore').subscribe((fromNode: NodeType) => {
-      debugger;
+      this.isExplored = true;
       if (this.isTarget == true) {
         this.appService.publish('target-found', this.getNodeType());
       }
       if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
-        if (this.gCost > fromNode.gCost + this.pathValues.diagonal) {
+        if ((this.gCost > fromNode.gCost + this.pathValues.diagonal) || this.gCost == 0) {
           this.gCost = fromNode.gCost + this.pathValues.diagonal;
           this.costFrom = fromNode;
           this.calculatefCost();
         }
       } else {
-        if (this.gCost > fromNode.gCost + this.pathValues.straight) {
+        if ((this.gCost > fromNode.gCost + this.pathValues.straight) || this.gCost == 0) {
           this.gCost = fromNode.gCost + this.pathValues.straight;
           this.costFrom = fromNode;
           this.calculatefCost();
         }
       }
+      this.appService.setExploration(this.getNodeType(), this.costFrom);
     });
 
     // if this node is selected.
     this.appService.on(this.nodeName + '-select').subscribe(() => {
-      debugger;
       this.isVisited = true;
 
       this.exploreSurround();
@@ -135,8 +159,7 @@ export class NodeComponent implements OnInit, OnDestroy {
   }
 
   exploreSurround() {
-      debugger;
-      // 8 node will be explored
+    // 8 node will be explored
     this.publishExplore(this.xCoord - 1, this.yCoord - 1);
     this.publishExplore(this.xCoord - 1, this.yCoord);
     this.publishExplore(this.xCoord - 1, this.yCoord + 1);
