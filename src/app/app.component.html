@@ -1,40 +1,51 @@
-
 <div>
+    <mat-form-field>
 
-    <mat-form-field class="example-full-width">
-      <input matInput placeholder="Enter X value" [(ngModel)]="xValue">
+      <input matInput placeholder="Enter X value" [(ngModel)]="xValue" />
     </mat-form-field>
-  
-    <mat-form-field class="example-full-width">
-      <input matInput placeholder="Enter Y value" [(ngModel)]="yValue">
+      
+      
+    <mat-form-field>
+      
+      <input matInput placeholder="Enter Y value" [(ngModel)]="yValue" />
     </mat-form-field>
-  <button mat-raised-button (click)="setUpGrid()">SetUp Grid</button>
-
-</div>
-<div>
-
-    <mat-form-field class="example-full-width">
-      <input matInput placeholder="Enter X value" [(ngModel)]="xValue">
+      
+    <mat-form-field>
+      
+      <button *ngIf="!gridVisible" mat-raised-button (click)="setUpGrid()">
+        SetUp Grid
+      </button>
+      
     </mat-form-field>
-  
-    <mat-form-field class="example-full-width">
-      <input matInput placeholder="Enter Y value" [(ngModel)]="yValue">
-    </mat-form-field>
-  <button mat-raised-button (click)="reachNode()">Say hi</button>
 
-</div>
+  <div *ngIf="gridVisible">
+      <mat-form-field>
 
-
-<div *ngIf="gridVisible" style="margin: 50px;margin-top: 0px;">
-<ng-container *ngFor="let x of grid;let xc=index">
-  <div class="row">
-
-    <ng-container *ngFor="let y of x;let yc=index">
-        <app-node *ngIf="xc >=0  && yc >= 0" [xCoord]="xc" [yCoord]="yc"></app-node>
-    </ng-container>
+        <mat-label>Select an action</mat-label>
+        <mat-select [(value)]="selectedMode">
+          <mat-option *ngFor="let item of mode" [value]="item">{{
+            item
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    
+    
+      <button mat-raised-button (click)="action()">Set</button>
     
   </div>
-  <app-node></app-node>
-</ng-container>
+</div>
 
+<div *ngIf="gridVisible" style="margin: 50px;margin-top: 0px;">
+  <ng-container *ngFor="let x of grid; let xc = index">
+    <div class="row">
+      <ng-container *ngFor="let y of x; let yc = index">
+        <app-node
+          *ngIf="xc >= 0 && yc >= 0"
+          [xCoord]="xc"
+          [yCoord]="yc"
+        ></app-node>
+      </ng-container>
+    </div>
+    <app-node></app-node>
+  </ng-container>
 </div>

@@ -14,12 +14,15 @@ export class AppComponent {
   gridVisible: boolean = false;
   grid = [];
 
-  /**
-   *
-   */
-  constructor(private appService:AppServiceService) {
-    
-  }
+  mode: string[] = [
+    "start",
+    "target",
+    "rock"
+  ];
+  selectedMode: string = "start";
+
+  constructor(private appService: AppServiceService) { }
+
   setUpGrid() {
     this.grid = [];
     for (let x = 0; x < this.xValue; x++) {
@@ -34,8 +37,14 @@ export class AppComponent {
     this.gridVisible = true;
   }
 
-  reachNode(){
-    this.appService.publish(`${this.xValue}-${this.yValue}-visit`,{});
+  action() {
+    debugger;
+    this.appService.publish(this.getActionNodeName()+'-'+this.selectedMode,{});
   }
+
+  getActionNodeName(): string {
+    return `${this.xValue}-${this.yValue}`;
+  }
+
 
 }

@@ -40,30 +40,41 @@ export class NodeComponent implements OnInit, OnDestroy {
     this.nodeName = `${this.xCoord}-${this.yCoord}`;
 
     this.appService.on(this.nodeName + '-explore').subscribe(() => {
+      debugger;
       this.isExplored = true;
     })
 
     this.appService.on(this.nodeName + '-visit').subscribe(() => {
+      debugger;
       this.isVisited = true;
     })
 
     this.appService.on(this.nodeName + '-start').subscribe(() => {
+      debugger;
       this.isStart = true;
     })
 
     this.appService.on(this.nodeName + '-target').subscribe(() => {
+      debugger;
       this.isTarget = true;
     })
 
-    this.appService.on(this.nodeName + '-setRock').subscribe(() => {
+    this.appService.on(this.nodeName + '-rock').subscribe(() => {
+      debugger;
+      this.isRock = true;
       this.appService.publish('rocks', { xCord: this.xCoord, yCord: this.yCoord });
     })
 
     this.appService.on("targetNode").subscribe((targetNode: NodeType) => {
+      debugger;
       this.targetNode = targetNode;
     })
 
     this.appService.on(this.nodeName + '-explore').subscribe((fromNode: NodeType) => {
+      debugger;
+      if (this.isTarget == true) {
+        this.appService.publish('target-found', this.getNodeType());
+      }
       if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
         if (this.gCost > fromNode.gCost + this.pathValues.diagonal) {
           this.gCost = fromNode.gCost + this.pathValues.diagonal;
@@ -77,12 +88,13 @@ export class NodeComponent implements OnInit, OnDestroy {
           this.calculatefCost();
         }
       }
-      
     });
 
     // if this node is selected.
-    this.appService.on(this.nodeName+'-select').subscribe(()=>{
+    this.appService.on(this.nodeName + '-select').subscribe(() => {
+      debugger;
       this.isVisited = true;
+
       this.exploreSurround();
     })
   }
@@ -122,36 +134,37 @@ export class NodeComponent implements OnInit, OnDestroy {
     }
   }
 
-  exploreSurround(){
-    // 8 node will be explored
-    this.publishExplore(this.xCoord-1,this.yCoord-1);
-    this.publishExplore(this.xCoord-1,this.yCoord);
-    this.publishExplore(this.xCoord-1,this.yCoord+1);
-    this.publishExplore(this.xCoord,this.yCoord-1);
-    this.publishExplore(this.xCoord,this.yCoord+1);
-    this.publishExplore(this.xCoord+1,this.yCoord-1);
-    this.publishExplore(this.xCoord+1,this.yCoord);
-    this.publishExplore(this.xCoord+1,this.yCoord+1);
+  exploreSurround() {
+      debugger;
+      // 8 node will be explored
+    this.publishExplore(this.xCoord - 1, this.yCoord - 1);
+    this.publishExplore(this.xCoord - 1, this.yCoord);
+    this.publishExplore(this.xCoord - 1, this.yCoord + 1);
+    this.publishExplore(this.xCoord, this.yCoord - 1);
+    this.publishExplore(this.xCoord, this.yCoord + 1);
+    this.publishExplore(this.xCoord + 1, this.yCoord - 1);
+    this.publishExplore(this.xCoord + 1, this.yCoord);
+    this.publishExplore(this.xCoord + 1, this.yCoord + 1);
   }
 
-  publishExplore(xCord,yCord){
-    this.appService.publish(`${xCord}-${yCord}-explore`,this.getNodeType());
+  publishExplore(xCord, yCord) {
+    this.appService.publish(`${xCord}-${yCord}-explore`, this.getNodeType());
   }
 
-  getNodeType():NodeType{
+  getNodeType(): NodeType {
     return {
-      xCord : this.xCoord,
-      yCord : this.yCoord,
-      gCost : this.gCost,
-      hCost : this.hCost,
-      fCost : this.fCost,
-      isExplored : this.isExplored,
-      isPath : this.isPath,
-      isRock : this.isRock,
-      isSelected : this.isSelected,
-      isStart : this.isStart,
-      isTarget : this.isTarget,
-      isVisited : this.isVisited
+      xCord: this.xCoord,
+      yCord: this.yCoord,
+      gCost: this.gCost,
+      hCost: this.hCost,
+      fCost: this.fCost,
+      isExplored: this.isExplored,
+      isPath: this.isPath,
+      isRock: this.isRock,
+      isSelected: this.isSelected,
+      isStart: this.isStart,
+      isTarget: this.isTarget,
+      isVisited: this.isVisited
     }
   }
 
