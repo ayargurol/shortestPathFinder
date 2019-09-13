@@ -41,9 +41,10 @@ export class AppServiceService {
   }
 
   setExploration(node: NodeType, fromNode: NodeType) {
+    // tslint:disable-next-line: no-debugger
     debugger;
-    let exist = this.exploredNodes.find(a => a.node.xCord == node.xCord && a.node.yCord == node.yCord)
-    if (exist != undefined) {
+    const exist = this.exploredNodes.find(a => a.node.xCord === node.xCord && a.node.yCord === node.yCord);
+    if (exist !== undefined) {
       exist.node = node;
       exist.from = fromNode;
     } else {

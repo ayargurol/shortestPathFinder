@@ -130,27 +130,52 @@ export class NodeComponent implements OnInit, OnDestroy {
     xFar = xFar < 0 ? -xFar : xFar;
     yFar = yFar < 0 ? -yFar : yFar;
 
-    while (xFar > 0) {
-      while (yFar > 0) {
-        if (xFar - 1 >= 0 && yFar - 1 >= 0) {
-          // can go diagonal
-          cost += this.pathValues.diagonal;
-          xFar--;
-          yFar--;
-        } else {
-          if (yFar - 1 >= 0) {
-            // can go straight on Y plane
-            cost += this.pathValues.straight;
-            yFar--;
-          }
-        }
-      }
-      if (xFar - 1 >= 0) {
-        // can go straight on X plane
+
+    while (true) {
+
+
+      if (xFar - 1 > 0 && yFar - 1 > 0) {
+        cost += this.pathValues.diagonal;
+        xFar--;
+        yFar--;
+      } else if (xFar - 1 > 0) {
         cost += this.pathValues.straight;
         xFar--;
+      } else if (yFar - 1 > 0) {
+        cost += this.pathValues.straight;
+        yFar--;
+      }
+
+
+
+
+      if (xFar == 0 && yFar == 0) {
+        break;
       }
     }
+
+
+    // while (xFar > 0) {
+    //   while (yFar > 0) {
+    //     if (xFar - 1 >= 0 && yFar - 1 >= 0) {
+    //       // can go diagonal
+    //       cost += this.pathValues.diagonal;
+    //       xFar--;
+    //       yFar--;
+    //     } else {
+    //       if (yFar - 1 >= 0) {
+    //         // can go straight on Y plane
+    //         cost += this.pathValues.straight;
+    //         yFar--;
+    //       }
+    //     }
+    //   }
+    //   if (xFar - 1 >= 0) {
+    //     // can go straight on X plane
+    //     cost += this.pathValues.straight;
+    //     xFar--;
+    //   }
+    // }
     this.hCost = cost;
 
     if (this.gCost && this.hCost) {
