@@ -96,9 +96,6 @@ export class NodeComponent implements OnInit, OnDestroy {
     //TODO: if prev G is lower keep it
     this.appService.on(this.nodeName + '-explore').subscribe((fromNode: NodeType) => {
       this.isExplored = true;
-      if (this.isTarget == true) {
-        this.appService.publish('target-found', this.getNodeType());
-      }
       if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
         if ((this.gCost > fromNode.gCost + this.pathValues.diagonal) || this.gCost == 0) {
           this.gCost = fromNode.gCost + this.pathValues.diagonal;
@@ -118,7 +115,9 @@ export class NodeComponent implements OnInit, OnDestroy {
     // if this node is selected.
     this.appService.on(this.nodeName + '-select').subscribe(() => {
       this.isVisited = true;
-
+      if (this.isTarget == true) {
+        this.appService.publish('target-found', this.getNodeType());
+      }
       this.exploreSurround();
     })
   }
@@ -129,55 +128,24 @@ export class NodeComponent implements OnInit, OnDestroy {
     let yFar = this.targetNode.yCord - this.yCoord;
     xFar = xFar < 0 ? -xFar : xFar;
     yFar = yFar < 0 ? -yFar : yFar;
-
-
+debugger;
     while (true) {
-
-
-      if (xFar - 1 > 0 && yFar - 1 > 0) {
+      if (xFar - 1 >= 0 && yFar - 1 >= 0) {
         cost += this.pathValues.diagonal;
         xFar--;
         yFar--;
-      } else if (xFar - 1 > 0) {
+      } else if (xFar - 1 >= 0) {
         cost += this.pathValues.straight;
         xFar--;
-      } else if (yFar - 1 > 0) {
+      } else if (yFar - 1 >= 0) {
         cost += this.pathValues.straight;
         yFar--;
       }
-
-
-
-
       if (xFar == 0 && yFar == 0) {
         break;
       }
     }
-
-
-    // while (xFar > 0) {
-    //   while (yFar > 0) {
-    //     if (xFar - 1 >= 0 && yFar - 1 >= 0) {
-    //       // can go diagonal
-    //       cost += this.pathValues.diagonal;
-    //       xFar--;
-    //       yFar--;
-    //     } else {
-    //       if (yFar - 1 >= 0) {
-    //         // can go straight on Y plane
-    //         cost += this.pathValues.straight;
-    //         yFar--;
-    //       }
-    //     }
-    //   }
-    //   if (xFar - 1 >= 0) {
-    //     // can go straight on X plane
-    //     cost += this.pathValues.straight;
-    //     xFar--;
-    //   }
-    // }
     this.hCost = cost;
-
     if (this.gCost && this.hCost) {
       this.fCost = this.gCost + this.hCost;
     }

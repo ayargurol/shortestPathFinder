@@ -45,8 +45,13 @@ export class AppServiceService {
     debugger;
     const exist = this.exploredNodes.find(a => a.node.xCord === node.xCord && a.node.yCord === node.yCord);
     if (exist !== undefined) {
-      exist.node = node;
-      exist.from = fromNode;
+      if (exist.node.fCost <= node.fCost) {
+
+        exist.node = node;
+        exist.from = fromNode;
+      } else {
+        return;
+      }
     } else {
       this.exploredNodes.push({ node, from: fromNode })
     }
