@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AppServiceService } from './services/app-service.service';
 import { Exploration } from './models/exploration-type';
+import { NodeType } from './models/node-type';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ export class AppComponent {
   yValue = 0;
   gridVisible: boolean = false;
   grid = [];
-
+  timeInterval: number;
   mode: string[] = [
     "start",
     "target",
@@ -25,6 +26,7 @@ export class AppComponent {
   constructor(private appService: AppServiceService) {
     appService.on('target-found').subscribe(() => {
       alert('Target Found');
+      this.stopExploration();
     })
   }
 
@@ -51,41 +53,73 @@ export class AppComponent {
     return `${this.xValue}-${this.yValue}`;
   }
 
-  lastSelectedNode;
+  stepper: NodeJS.Timer;
+  startExploration() {
+    this.stepper = setInterval(() => {
+      this.explore();
+    }, this.timeInterval * 100)
+  }
+
+  stopExploration() {
+    this.stepper.unref();
+  }
+
+
+  blockedNodes: NodeType[] = [];
+  lastSelectedNode: Exploration;
   startNode;
   explore() {
     let explored = this.appService.getExploredNodes();
     if (explored.length == 0) {
       this.appService.publish(this.startNode + '-select', {});
     } else {
-      let node;
+      let node: Exploration;
       let count = 0;
       while (true) {
         node = this.chooseSelected(count);
-        if(this.lastSelectedNode == null || this.lastSelectedNode == undefined){
+        if (this.lastSelectedNode == null || this.lastSelectedNode == undefined) {
           break;
         }
-        else if (node.from.xCord != this.lastSelectedNode.node.xCord && node.from.yCord != this.lastSelectedNode.node.yCord) {
+        else if (node != null && node.from.xCord != this.lastSelectedNode.node.xCord && node.from.yCord != this.lastSelectedNode.node.yCord) {
           count++;
           continue;
-        }else{
+        }
+        else if (node != null && !this.blockedNodes.some(a => a.xCord == node.node.xCord && a.yCord == node.node.yCord)) {
           break;
+        }
+        else {
+          // block last selected
+          this.blockedNodes.push(this.lastSelectedNode.from)
+          // set all visiteds false
+          this.lastSelectedNode = null;
+          this.appService.publish('reset-path', {});
+          // start from Begining node again
+          this.appService.resetPath();
+          this.explore();
         }
       }
 
 
       this.lastSelectedNode = node;
       this.appService.publish(`${node.node.xCord}-${node.node.yCord}-select`, {});
+      this.appService.removeExploration(node.node);
     }
   }
 
   chooseSelected(i): Exploration {
-    let explored = this.appService.getExploredNodes();
+    try {
 
-    let first = explored.sort(a => a.node.fCost)[i];
-    let last = explored.sort(a => a.node.fCost)[explored.length - (i + 1)];
-    return first.node.fCost < last.node.fCost ? first : last;
+      let explored = this.appService.getExploredNodes();
 
+      let first = explored.sort(a => a.node.fCost)[i];
+      let last = explored.sort(a => a.node.fCost)[explored.length - (i + 1)];
+      return first.node.fCost < last.node.fCost ? first : last;
+
+    } catch (error) {
+      console.log('Error on iteration number: ' + i);
+      return null;
+
+    }
 
   }
 

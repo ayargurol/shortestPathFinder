@@ -95,21 +95,23 @@ export class NodeComponent implements OnInit, OnDestroy {
 
     //TODO: if prev G is lower keep it
     this.appService.on(this.nodeName + '-explore').subscribe((fromNode: NodeType) => {
-      this.isExplored = true;
-      if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
-        if ((this.gCost > fromNode.gCost + this.pathValues.diagonal) || this.gCost == 0) {
-          this.gCost = fromNode.gCost + this.pathValues.diagonal;
-          this.costFrom = fromNode;
-          this.calculatefCost();
+      if (this.isRock == false && this.isVisited != true) {
+        this.isExplored = true;
+        if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
+          if ((this.gCost > fromNode.gCost + this.pathValues.diagonal) || this.gCost == 0) {
+            this.gCost = fromNode.gCost + this.pathValues.diagonal;
+            this.costFrom = fromNode;
+            this.calculatefCost();
+          }
+        } else {
+          if ((this.gCost > fromNode.gCost + this.pathValues.straight) || this.gCost == 0) {
+            this.gCost = fromNode.gCost + this.pathValues.straight;
+            this.costFrom = fromNode;
+            this.calculatefCost();
+          }
         }
-      } else {
-        if ((this.gCost > fromNode.gCost + this.pathValues.straight) || this.gCost == 0) {
-          this.gCost = fromNode.gCost + this.pathValues.straight;
-          this.costFrom = fromNode;
-          this.calculatefCost();
-        }
+        this.appService.setExploration(this.getNodeType(), this.costFrom);
       }
-      this.appService.setExploration(this.getNodeType(), this.costFrom);
     });
 
     // if this node is selected.
@@ -120,6 +122,10 @@ export class NodeComponent implements OnInit, OnDestroy {
       }
       this.exploreSurround();
     })
+
+    this.appService.on('reset-path').subscribe(() => {
+      this.resetPath();
+    });
   }
 
   calculatefCost() {
@@ -128,7 +134,6 @@ export class NodeComponent implements OnInit, OnDestroy {
     let yFar = this.targetNode.yCord - this.yCoord;
     xFar = xFar < 0 ? -xFar : xFar;
     yFar = yFar < 0 ? -yFar : yFar;
-debugger;
     while (true) {
       if (xFar - 1 >= 0 && yFar - 1 >= 0) {
         cost += this.pathValues.diagonal;
@@ -182,6 +187,14 @@ debugger;
       isTarget: this.isTarget,
       isVisited: this.isVisited
     }
+  }
+
+  resetPath() {
+    this.isVisited = false;
+    this.isExplored = false;
+    this.fCost = 0;
+    this.hCost = 0;
+    this.gCost = 0;
   }
 
   ngOnDestroy() {

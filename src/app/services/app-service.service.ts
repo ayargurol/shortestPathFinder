@@ -42,7 +42,6 @@ export class AppServiceService {
 
   setExploration(node: NodeType, fromNode: NodeType) {
     // tslint:disable-next-line: no-debugger
-    debugger;
     const exist = this.exploredNodes.find(a => a.node.xCord === node.xCord && a.node.yCord === node.yCord);
     if (exist !== undefined) {
       if (exist.node.fCost <= node.fCost) {
@@ -59,5 +58,13 @@ export class AppServiceService {
 
   getExploredNodes(): Exploration[] {
     return this.exploredNodes;
+  }
+  resetPath():void{
+    this.exploredNodes = [];
+  }
+
+  removeExploration(node){
+    debugger;
+    this.exploredNodes.splice(this.exploredNodes.findIndex(a=>a.node.xCord == node.xCord && a.node.yCord == node.yCord),1);
   }
 }

@@ -20,3 +20,7 @@
 ::ng-deep .explored {
   background-color: teal;
 }
+
+::ng-deep .isRock {
+  background-color: black;
+}
