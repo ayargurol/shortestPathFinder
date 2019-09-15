@@ -1,4 +1,5 @@
 <div>
+<div  *ngIf="!gridVisible">
 
   <mat-form-field>
     <input matInput placeholder="Enter X value" [(ngModel)]="xValue" />
@@ -7,6 +8,7 @@
     <input matInput placeholder="Enter Y value" [(ngModel)]="yValue" />
   </mat-form-field>
   <button *ngIf="!gridVisible" mat-raised-button (click)="setUpGrid()">SetUp Grid</button>
+</div>
 
   <div *ngIf="gridVisible">
     <mat-form-field>
@@ -16,12 +18,12 @@
       </mat-select>
     </mat-form-field>
 
-    <button mat-raised-button (click)="action()">Set</button>
     <mat-form-field>
       <input matInput placeholder="SetTimeInterval" [(ngModel)]="timeInterval" />
     </mat-form-field>
     <button mat-raised-button (click)="startExploration()">Start Exploration</button>
     <button mat-raised-button (click)="stopExploration()">Stop Exploration</button>
+    <button mat-raised-button (click)="explore()">1 Step</button>
 
   </div>
 </div>
@@ -30,7 +32,7 @@
   <ng-container *ngFor="let x of grid; let xc = index">
     <div class="row">
       <ng-container *ngFor="let y of x; let yc = index">
-        <app-node *ngIf="xc >= 0 && yc >= 0" [xCoord]="xc" [yCoord]="yc"></app-node>
+        <app-node *ngIf="xc >= 0 && yc >= 0" [xCoord]="xc" [yCoord]="yc" (click)="setAction(xc,yc)" ></app-node>
       </ng-container>
     </div>
     <app-node></app-node>

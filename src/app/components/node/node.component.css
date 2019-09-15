@@ -24,3 +24,7 @@
 ::ng-deep .isRock {
   background-color: black;
 }
+
+::ng-deep .colorUp {
+  background-color: rgb(255, 0, 0) !important;
+}

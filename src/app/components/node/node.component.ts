@@ -18,12 +18,14 @@ export class NodeComponent implements OnInit, OnDestroy {
   isRock: boolean = false;
   isStart: boolean = false;
   isTarget: boolean = false;
+  isBlocked: boolean = false;
+  colorUp:boolean= false;
   @Input() xCoord: number;
   @Input() yCoord: number;
 
   gCost: number = 0;
   hCost: number;
-  fCost: number;
+  fCost: number = 0;
 
   costFrom: NodeType;
 
@@ -61,6 +63,10 @@ export class NodeComponent implements OnInit, OnDestroy {
       this.appService.publish('rocks', { xCord: this.xCoord, yCord: this.yCoord });
     })
 
+    this.appService.on(this.nodeName + '-color').subscribe(()=>{
+      this.colorUp = true
+    })
+
     this.appService.on("targetNode").subscribe((targetNode: NodeType) => {
       this.targetNode = targetNode;
       let cost = 0;
@@ -95,16 +101,23 @@ export class NodeComponent implements OnInit, OnDestroy {
 
     //TODO: if prev G is lower keep it
     this.appService.on(this.nodeName + '-explore').subscribe((fromNode: NodeType) => {
-      if (this.isRock == false && this.isVisited != true) {
+      if (this.isRock == false && this.isBlocked == false && this.isVisited == false) {
         this.isExplored = true;
+        // TODO: FIX NODE F COST calculation. 
         if (fromNode.xCord != this.xCoord && fromNode.yCord != this.yCoord) {
-          if ((this.gCost > fromNode.gCost + this.pathValues.diagonal) || this.gCost == 0) {
+          let fgCost = fromNode.gCost + this.pathValues.diagonal;
+          let fhCost = this.calculateHCost();
+          let ffCost = fhCost + fgCost;
+          if (this.fCost == 0 || this.fCost > ffCost) {
             this.gCost = fromNode.gCost + this.pathValues.diagonal;
             this.costFrom = fromNode;
             this.calculatefCost();
           }
         } else {
-          if ((this.gCost > fromNode.gCost + this.pathValues.straight) || this.gCost == 0) {
+          let fgCost = fromNode.gCost + this.pathValues.straight;
+          let fhCost = this.calculateHCost();
+          let ffCost = fhCost + fgCost;
+          if (this.fCost == 0 || this.fCost > ffCost) {
             this.gCost = fromNode.gCost + this.pathValues.straight;
             this.costFrom = fromNode;
             this.calculatefCost();
@@ -126,9 +139,20 @@ export class NodeComponent implements OnInit, OnDestroy {
     this.appService.on('reset-path').subscribe(() => {
       this.resetPath();
     });
+
+    this.appService.on(this.nodeName + '-block').subscribe(() => {
+      this.isBlocked = true;
+    })
   }
 
   calculatefCost() {
+    this.hCost = this.calculateHCost();;
+    if (this.gCost && this.hCost) {
+      this.fCost = this.gCost + this.hCost;
+    }
+  }
+
+  calculateHCost(): number {
     let cost = 0;
     let xFar = this.targetNode.xCord - this.xCoord;
     let yFar = this.targetNode.yCord - this.yCoord;
@@ -150,10 +174,7 @@ export class NodeComponent implements OnInit, OnDestroy {
         break;
       }
     }
-    this.hCost = cost;
-    if (this.gCost && this.hCost) {
-      this.fCost = this.gCost + this.hCost;
-    }
+    return cost;
   }
 
   exploreSurround() {
@@ -185,7 +206,8 @@ export class NodeComponent implements OnInit, OnDestroy {
       isSelected: this.isSelected,
       isStart: this.isStart,
       isTarget: this.isTarget,
-      isVisited: this.isVisited
+      isVisited: this.isVisited,
+      costFrom:this.costFrom
     }
   }
 

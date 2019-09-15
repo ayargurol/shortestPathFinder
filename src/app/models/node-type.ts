@@ -11,4 +11,5 @@ export class NodeType {
     gCost?:number;
     hCost?:number;
     fCost?:number;
+    costFrom?:NodeType;
 }
